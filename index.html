@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pregnancy Food Check</title>
+<style>
+  :root {
+    --bg: #f7f6f2;
+    --card: #ffffff;
+    --text: #1f2933;
+    --muted: #52606d;
+    --border: #e4e7eb;
+    --safe-bg: #e6f4ea;
+    --safe-fg: #1e6f3a;
+    --caution-bg: #fff4e0;
+    --caution-fg: #8a5a00;
+    --avoid-bg: #fde8e8;
+    --avoid-fg: #b3261e;
+    --accent: #3a5a7c;
+    --disclaimer-bg: #fdf6e3;
+    --disclaimer-border: #ecdfba;
+    --disclaimer-fg: #6b5d2f;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 28px 20px 120px;
+  }
+  h1 {
+    font-size: 30px;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+    font-weight: 700;
+  }
+  .lede {
+    color: var(--muted);
+    margin: 0 0 22px;
+    font-size: 16px;
+  }
+  .search {
+    width: 100%;
+    padding: 16px 18px;
+    font-size: 20px;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    background: var(--card);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  .search:focus { border-color: var(--accent); }
+  .results {
+    margin-top: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .food {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+  }
+  .badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .badge.safe { background: var(--safe-bg); color: var(--safe-fg); }
+  .badge.caution { background: var(--caution-bg); color: var(--caution-fg); }
+  .badge.avoid { background: var(--avoid-bg); color: var(--avoid-fg); }
+  .reason { margin: 10px 0 0; color: var(--text); font-size: 16px; }
+  .source { margin-top: 10px; font-size: 14px; }
+  .source a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(58, 90, 124, 0.35);
+  }
+  .source a:hover { border-bottom-color: var(--accent); }
+  .empty {
+    background: var(--card);
+    border: 1px dashed var(--border);
+    border-radius: 14px;
+    padding: 22px 18px;
+    color: var(--muted);
+    text-align: center;
+    font-size: 16px;
+  }
+  .disclaimer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--disclaimer-bg);
+    border-top: 1px solid var(--disclaimer-border);
+    color: var(--disclaimer-fg);
+    font-size: 14px;
+    padding: 12px 16px;
+    text-align: center;
+    z-index: 10;
+  }
+  @media (max-width: 480px) {
+    h1 { font-size: 24px; }
+    .search { font-size: 18px; padding: 14px 16px; }
+    .food { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Pregnancy Food Check</h1>
+  <p class="lede">Search a food to see if it's generally safe, needs caution, or should be avoided.</p>
+  <input id="q" class="search" type="search" placeholder="Search a food…" autocomplete="off" autofocus aria-label="Search a food">
+  <div id="results" class="results" aria-live="polite"></div>
+</div>
+<div class="disclaimer" id="disclaimer">
+  General food-safety guidance from public health agencies. Not medical advice. Ask your doctor or midwife.
+</div>
+
+<script id="food-data" type="application/json">
+[
+  {"food":"Canned light tuna","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list; eat 2 to 3 servings a week (4 oz each).","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Salmon","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list; eat 2 to 3 servings a week (4 oz each).","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Shrimp","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list; eat 2 to 3 servings a week (4 oz each).","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Cod","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list; eat 2 to 3 servings a week (4 oz each).","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Tilapia","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list; eat 2 to 3 servings a week (4 oz each).","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Catfish","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list; eat 2 to 3 servings a week (4 oz each).","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Pollock","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list; eat 2 to 3 servings a week (4 oz each).","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Sardines","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list (\"sardine\"); eat 2 to 3 servings a week.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Anchovies","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list (\"anchovy\"); eat 2 to 3 servings a week.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Freshwater trout","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list; eat 2 to 3 servings a week (4 oz each).","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Atlantic mackerel","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list — different from King mackerel, which is on \"Choices to Avoid.\"","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Atlantic croaker","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list; eat 2 to 3 servings a week (4 oz each).","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Black sea bass","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list; eat 2 to 3 servings a week (4 oz each).","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Crab","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list; eat 2 to 3 servings a week (4 oz each).","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Lobster (American)","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list; eat 2 to 3 servings a week (4 oz each).","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Haddock","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list; eat 2 to 3 servings a week (4 oz each).","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Flounder","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list; eat 2 to 3 servings a week (4 oz each).","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Sole","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list; eat 2 to 3 servings a week (4 oz each).","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Herring","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list; eat 2 to 3 servings a week (4 oz each).","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Squid","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list; eat 2 to 3 servings a week (4 oz each).","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Whitefish","category":"safe","reason":"On the FDA/EPA \"Best Choices\" list; eat 2 to 3 servings a week (4 oz each).","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Cooked oysters","category":"safe","reason":"Cook shellfish until shells open during cooking, or until flesh is opaque.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Cooked clams","category":"safe","reason":"Cook shellfish until shells open during cooking, or until flesh is opaque.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Cooked mussels","category":"safe","reason":"Cook shellfish until shells open during cooking, or until flesh is opaque.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Cooked scallops","category":"safe","reason":"Cook shellfish until the flesh is pearly or white, and opaque.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Cooked fish","category":"safe","reason":"Cook fish to 145°F — until the flesh is opaque and separates easily with a fork.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Cooked eggs","category":"safe","reason":"Cook eggs until yolks and whites are firm, or use pasteurized eggs.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Pasteurized milk","category":"safe","reason":"CDC lists pasteurized milk as a safer alternative to raw milk.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Pasteurized yogurt","category":"safe","reason":"CDC lists pasteurized yogurt as a safer alternative to raw-milk yogurt.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Pasteurized ice cream","category":"safe","reason":"CDC lists pasteurized ice cream as a safer alternative to raw-milk ice cream.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Pasteurized juice","category":"safe","reason":"CDC's alternative to unpasteurized juice, which should be avoided.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Cream cheese","category":"safe","reason":"CDC lists cream cheese as a safer choice when made with pasteurized milk.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Cheddar cheese","category":"safe","reason":"Hard cheese made with pasteurized milk — FDA lists pasteurized cheese as safe (except queso fresco types).","source":"https://www.fda.gov/food/health-educators/listeria-food-safety-moms-be"},
+  {"food":"Swiss cheese","category":"safe","reason":"Hard cheese made with pasteurized milk — FDA lists pasteurized cheese as safe (except queso fresco types).","source":"https://www.fda.gov/food/health-educators/listeria-food-safety-moms-be"},
+  {"food":"Parmesan cheese","category":"safe","reason":"Hard cheese made with pasteurized milk — FDA lists pasteurized cheese as safe (except queso fresco types).","source":"https://www.fda.gov/food/health-educators/listeria-food-safety-moms-be"},
+  {"food":"Brie made with pasteurized milk","category":"safe","reason":"FDA says cheese made with pasteurized milk is safe (except queso fresco types) — read the label.","source":"https://www.fda.gov/food/health-educators/listeria-food-safety-moms-be"},
+  {"food":"Feta made with pasteurized milk","category":"safe","reason":"FDA says cheese made with pasteurized milk is safe (except queso fresco types) — read the label.","source":"https://www.fda.gov/food/health-educators/listeria-food-safety-moms-be"},
+  {"food":"Cooked chicken","category":"safe","reason":"Cook poultry to an internal temperature of 165°F.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Cooked beef","category":"safe","reason":"Cook whole cuts of beef to 145°F and let rest 3 minutes.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Cooked pork","category":"safe","reason":"Cook whole cuts of pork to 145°F and let rest 3 minutes.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Cooked lamb","category":"safe","reason":"Cook whole cuts of lamb to 145°F and let rest 3 minutes.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Cooked ground beef","category":"safe","reason":"Cook ground meats to an internal temperature of at least 160°F.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Hot dogs heated to steaming","category":"safe","reason":"Safe when reheated to 165°F or until steaming hot right before serving.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Deli meat heated to steaming","category":"safe","reason":"Safe when reheated to 165°F or until steaming hot right before serving.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Washed fruits","category":"safe","reason":"Wash unwashed fresh fruit under running water before eating, cutting, or cooking.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Washed vegetables","category":"safe","reason":"Wash unwashed fresh vegetables — including lettuce and other leafy greens — under running water.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Cooked sprouts","category":"safe","reason":"CDC says cooked sprouts (until steaming hot) are the safer alternative to raw or lightly cooked sprouts.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+
+  {"food":"Deli turkey","category":"caution","reason":"Unheated deli meat is a Listeria risk; reheat to 165°F or until steaming hot before eating.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Deli ham","category":"caution","reason":"Unheated deli meat is a Listeria risk; reheat to 165°F or until steaming hot before eating.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Deli roast beef","category":"caution","reason":"Unheated deli meat is a Listeria risk; reheat to 165°F or until steaming hot before eating.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Lunch meat","category":"caution","reason":"Unheated lunch meat is a Listeria risk; reheat to 165°F or until steaming hot before eating.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Cold cuts","category":"caution","reason":"Unheated cold cuts are a Listeria risk; reheat to 165°F or until steaming hot before eating.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Hot dogs (unheated)","category":"caution","reason":"Unheated hot dogs are a Listeria risk; reheat to 165°F or until steaming hot before eating.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Fermented sausage","category":"caution","reason":"CDC lists fermented or dry sausages with unheated deli meats; heat to 165°F or steaming hot.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Dry sausage","category":"caution","reason":"CDC lists fermented or dry sausages with unheated deli meats; heat to 165°F or steaming hot.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Coffee","category":"caution","reason":"ACOG advises keeping caffeine below 200 mg per day (about one 12 oz cup of brewed coffee).","source":"https://www.acog.org/womens-health/experts-and-stories/ask-acog/how-much-coffee-can-i-drink-while-pregnant"},
+  {"food":"Caffeinated tea","category":"caution","reason":"Counts toward ACOG's 200 mg per day caffeine limit during pregnancy.","source":"https://www.acog.org/womens-health/experts-and-stories/ask-acog/how-much-coffee-can-i-drink-while-pregnant"},
+  {"food":"Caffeinated soda","category":"caution","reason":"Counts toward ACOG's 200 mg per day caffeine limit during pregnancy.","source":"https://www.acog.org/womens-health/experts-and-stories/ask-acog/how-much-coffee-can-i-drink-while-pregnant"},
+  {"food":"Albacore tuna","category":"caution","reason":"On the FDA/EPA \"Good Choices\" list; substitute for 1 serving (4 oz) per week instead of Best Choices.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Yellowfin tuna","category":"caution","reason":"On the FDA/EPA \"Good Choices\" list; substitute for 1 serving (4 oz) per week instead of Best Choices.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Mahi mahi","category":"caution","reason":"On the FDA/EPA \"Good Choices\" list; substitute for 1 serving (4 oz) per week instead of Best Choices.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Halibut","category":"caution","reason":"On the FDA/EPA \"Good Choices\" list; substitute for 1 serving (4 oz) per week instead of Best Choices.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Snapper","category":"caution","reason":"On the FDA/EPA \"Good Choices\" list; substitute for 1 serving (4 oz) per week instead of Best Choices.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Grouper","category":"caution","reason":"On the FDA/EPA \"Good Choices\" list; substitute for 1 serving (4 oz) per week instead of Best Choices.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Chilean sea bass","category":"caution","reason":"On the FDA/EPA \"Good Choices\" list; substitute for 1 serving (4 oz) per week instead of Best Choices.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Bluefish","category":"caution","reason":"On the FDA/EPA \"Good Choices\" list; substitute for 1 serving (4 oz) per week instead of Best Choices.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Tilefish (Atlantic Ocean)","category":"caution","reason":"On the FDA/EPA \"Good Choices\" list — 1 serving (4 oz) per week. Gulf of Mexico tilefish is on \"Choices to Avoid.\"","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Spanish mackerel","category":"caution","reason":"On the FDA/EPA \"Good Choices\" list; substitute for 1 serving (4 oz) per week instead of Best Choices.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Monkfish","category":"caution","reason":"On the FDA/EPA \"Good Choices\" list; substitute for 1 serving (4 oz) per week instead of Best Choices.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Rockfish","category":"caution","reason":"On the FDA/EPA \"Good Choices\" list; substitute for 1 serving (4 oz) per week instead of Best Choices.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Sablefish","category":"caution","reason":"On the FDA/EPA \"Good Choices\" list; substitute for 1 serving (4 oz) per week instead of Best Choices.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Soft cheese (unlabeled)","category":"caution","reason":"FDA says avoid soft cheese unless the label clearly says it is made with pasteurized milk.","source":"https://www.fda.gov/food/health-educators/listeria-food-safety-moms-be"},
+
+  {"food":"Sushi","category":"avoid","reason":"CDC says avoid raw or undercooked fish or shellfish, including sushi.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Sashimi","category":"avoid","reason":"CDC says avoid raw or undercooked fish or shellfish, including sashimi.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Ceviche","category":"avoid","reason":"CDC says avoid raw or undercooked fish or shellfish, including ceviche.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Raw oysters","category":"avoid","reason":"CDC says avoid raw or undercooked shellfish; cook until shells open or flesh is opaque.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Raw clams","category":"avoid","reason":"CDC says avoid raw or undercooked shellfish; cook until shells open or flesh is opaque.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Raw mussels","category":"avoid","reason":"CDC says avoid raw or undercooked shellfish; cook until shells open or flesh is opaque.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Raw scallops","category":"avoid","reason":"CDC says avoid raw or undercooked shellfish; cook until flesh is pearly or white, and opaque.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Swordfish","category":"avoid","reason":"On the FDA/EPA \"Choices to Avoid\" list because of highest mercury levels.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Shark","category":"avoid","reason":"On the FDA/EPA \"Choices to Avoid\" list because of highest mercury levels.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"King mackerel","category":"avoid","reason":"On the FDA/EPA \"Choices to Avoid\" list because of highest mercury levels.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Tilefish (Gulf of Mexico)","category":"avoid","reason":"On the FDA/EPA \"Choices to Avoid\" list because of highest mercury levels.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Bigeye tuna","category":"avoid","reason":"On the FDA/EPA \"Choices to Avoid\" list because of highest mercury levels.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Marlin","category":"avoid","reason":"On the FDA/EPA \"Choices to Avoid\" list because of highest mercury levels.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Orange roughy","category":"avoid","reason":"On the FDA/EPA \"Choices to Avoid\" list because of highest mercury levels.","source":"https://www.fda.gov/food/consumers/advice-about-eating-fish"},
+  {"food":"Raw eggs","category":"avoid","reason":"CDC says avoid raw or undercooked (runny) eggs and foods that contain them.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Caesar salad dressing","category":"avoid","reason":"CDC lists Caesar salad dressing among riskier egg dishes because it can contain raw or undercooked egg; use one made with pasteurized eggs.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Raw cookie dough","category":"avoid","reason":"CDC says avoid raw cookie dough or raw batter — it can contain raw egg and raw flour.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Undercooked eggs","category":"avoid","reason":"CDC says avoid runny eggs; cook until yolks and whites are firm, or use pasteurized eggs.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Raw meat","category":"avoid","reason":"CDC says avoid raw or undercooked meat; use a food thermometer to reach safe internal temperatures.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Rare steak","category":"avoid","reason":"CDC says cook whole cuts of beef to 145°F and let rest 3 minutes.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Raw poultry","category":"avoid","reason":"CDC says avoid raw or undercooked poultry; cook to 165°F.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Unpasteurized milk","category":"avoid","reason":"CDC says avoid raw (unpasteurized) milk and dairy products made from raw milk.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Raw milk yogurt","category":"avoid","reason":"CDC lists raw (unpasteurized) yogurt among foods to avoid; choose pasteurized yogurt instead.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Raw milk ice cream","category":"avoid","reason":"CDC lists raw (unpasteurized) ice cream among foods to avoid; choose pasteurized ice cream instead.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Unpasteurized juice","category":"avoid","reason":"CDC says avoid unpasteurized juice or cider — or bring it to a rolling boil for at least 1 minute.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Soft cheese from unpasteurized milk","category":"avoid","reason":"CDC says avoid soft cheese made from unpasteurized (raw) milk; choose pasteurized instead.","source":"https://www.cdc.gov/food-safety/foods/pregnant-women.html"},
+  {"food":"Brie made with unpasteurized milk","category":"avoid","reason":"FDA names brie among soft cheeses to avoid when made with unpasteurized (raw) milk.","source":"https://www.fda.gov/food/health-educators/listeria-food-safety-moms-be"},
+  {"food":"Camembert made with unpasteurized milk","category":"avoid","reason":"FDA names camembert among soft cheeses to avoid when made with unpasteurized (raw) milk.","source":"https://www.fda.gov/food/health-educators/listeria-food-safety-moms-be"},
+  {"food":"Feta made with unpasteurized milk","category":"avoid","reason":"FDA names feta among soft cheeses to avoid when made with unpasteurized (raw) milk.","source":"https://www.fda.gov/food/health-educators/listeria-food-safety-moms-be"},
+  {"food":"Queso fresco","category":"avoid","reason":"FDA says avoid queso fresco-type cheeses whether made with pasteurized or unpasteurized milk.","source":"https://www.fda.gov/food/health-educators/listeria-food-safety-moms-be"},
+  {"food":"Queso blanco","category":"avoid","reason":"CDC groups queso blanco with queso fresco among unheated soft cheeses to avoid.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Raw sprouts","category":"avoid","reason":"CDC says avoid raw or lightly cooked sprouts; cook until steaming hot.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Refrigerated smoked seafood","category":"avoid","reason":"CDC says avoid refrigerated smoked fish (nova-style, lox, kippered, smoked, jerky) unless cooked in a dish.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Refrigerated pâté","category":"avoid","reason":"CDC says avoid refrigerated pâté or meat spreads; canned or shelf-stable versions are OK.","source":"https://www.cdc.gov/listeria/prevention/index.html"},
+  {"food":"Refrigerated meat spread","category":"avoid","reason":"CDC says avoid refrigerated pâté or meat spreads; canned or shelf-stable versions are OK.","source":"https://www.cdc.gov/listeria/prevention/index.html"}
+]
+</script>
+
+<script>
+  (function () {
+    const data = JSON.parse(document.getElementById('food-data').textContent);
+    const resultsEl = document.getElementById('results');
+    const qEl = document.getElementById('q');
+
+    const CATEGORY_LABEL = { safe: 'Safe', caution: 'Caution', avoid: 'Avoid' };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    function render(query) {
+      const q = query.trim().toLowerCase();
+      resultsEl.innerHTML = '';
+      if (!q) return;
+
+      const hits = data.filter(function (row) {
+        return row.food.toLowerCase().includes(q);
+      });
+
+      if (hits.length === 0) {
+        const div = document.createElement('div');
+        div.className = 'empty';
+        div.id = 'no-results';
+        div.textContent = "Sorry — that food isn't in our list. We don't guess. Ask your doctor or midwife.";
+        resultsEl.appendChild(div);
+        return;
+      }
+
+      const rank = { avoid: 0, caution: 1, safe: 2 };
+      hits.sort(function (a, b) {
+        return (rank[a.category] - rank[b.category]) || a.food.localeCompare(b.food);
+      });
+
+      for (const row of hits) {
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.dataset.category = row.category;
+        card.innerHTML =
+          '<div class="row">' +
+            '<p class="food">' + escapeHtml(row.food) + '</p>' +
+            '<span class="badge ' + row.category + '" data-category="' + row.category + '">' + CATEGORY_LABEL[row.category] + '</span>' +
+          '</div>' +
+          '<p class="reason">' + escapeHtml(row.reason) + '</p>' +
+          '<p class="source"><a href="' + encodeURI(row.source) + '" target="_blank" rel="noopener noreferrer">Source</a></p>';
+        resultsEl.appendChild(card);
+      }
+    }
+
+    qEl.addEventListener('input', function (e) { render(e.target.value); });
+  })();
+</script>
+</body>
+</html>
